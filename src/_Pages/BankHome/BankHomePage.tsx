@@ -6,7 +6,7 @@ const BankHomePage = () => {
   return (
     <div className="w-screen h-screen p-20">
       <div className="flex flex-col space-y-8">
-        <div className="flex space-x-11">
+        <div className="flex flex-col mb-10 space-y-4 lg:flex-row lg:space-y-0 lg:space-x-6">
           <div className="flex-1">
             <BankAccountData />
           </div>

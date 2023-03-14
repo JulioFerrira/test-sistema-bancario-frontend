@@ -1,38 +1,42 @@
 import { gqlAuth } from "@/gql";
 import { useMutation } from "@apollo/client";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
 import { Button, Input, Panel } from "rsuite";
+import { USER_TOKEN_PERSIST } from "../../config/constants";
 import { ILoginInput, ILoginResponse } from "../../gql/Auth/mutations";
 const BankLoginPage = () => {
   const { control, handleSubmit } = useForm<ILoginInput>();
-
+  const router = useRouter();
   const [login, { data: loginData }] = useMutation<
     { login: ILoginResponse },
     { loginInput: ILoginInput }
-  >(gqlAuth.mutations.LOGIN, {
-    variables: {
-      loginInput: {
-        email: "jose@gmail.com",
-        password: "12345678",
-      },
-    },
-  });
+  >(gqlAuth.mutations.LOGIN);
 
   const onLogin = async (input: ILoginInput) => {
-    await login({
-      variables: {
-        loginInput: {
-          email: input.email,
-          password: input.password,
+    try {
+      toast.loading("Realizando login...");
+      await login({
+        variables: {
+          loginInput: {
+            email: input.email,
+            password: input.password,
+          },
         },
-      },
-    });
+      });
+      toast.success("Login realizado con exito");
+      router.replace("/app/home");
+    } catch (error: any) {
+      console.log(error);
+      toast.error("Error al realizar el login");
+    }
   };
 
   useEffect(() => {
     if (loginData?.login) {
-      console.log(loginData?.login);
+      localStorage.setItem(USER_TOKEN_PERSIST, loginData?.login?.token || "");
     }
   }, [loginData]);
 
@@ -52,6 +56,7 @@ const BankLoginPage = () => {
             <label className="text-md">Email</label>
             <Controller
               name="email"
+              rules={{ required: true }}
               control={control}
               render={({ field }) => (
                 <Input {...field} placeholder="Email" className="p-3 " />
@@ -62,6 +67,7 @@ const BankLoginPage = () => {
             <label className="text-md">Password</label>
             <Controller
               name="password"
+              rules={{ required: true }}
               control={control}
               render={({ field }) => (
                 <Input

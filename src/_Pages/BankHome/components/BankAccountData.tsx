@@ -1,22 +1,26 @@
-import { Button, Panel } from "rsuite";
+import { Panel } from "rsuite";
+import { useUser } from "../../../context/user/user.context";
 const BankAccountData = () => {
+  const { userBankAccount } = useUser();
   return (
-    <Panel className="h-48 bg-white shadow-md">
+    <Panel className="h-40 bg-white shadow-md">
       <div className="flex justify-between text-2xl ">
         <span>Banco:</span>
-        <div className="font-bold">Banco de Chile</div>
+        <div className="font-bold">
+          {userBankAccount?.bankSetting?.bankName}
+        </div>
       </div>
       <div className="flex justify-between text-2xl">
         <span>Monto</span>
-        <span className="font-bold">1.200.000</span>
+        <span className="font-bold">
+          {userBankAccount?.bankAccount?.balance}
+        </span>
       </div>
       <div className="flex justify-between mb-2 text-2xl">
         <p>Numero de cuenta:</p>
-        <p className="font-bold">123456789</p>
-      </div>
-      <div className="flex justify-between text-2xl">
-        <Button className="p-4 text-white bg-blue-600">Guardar dinero</Button>
-        <Button className="p-4 text-white bg-blue-600">Retirar dinero</Button>
+        <p className="font-bold">
+          {userBankAccount?.bankAccount.accountNumber}
+        </p>
       </div>
     </Panel>
   );
