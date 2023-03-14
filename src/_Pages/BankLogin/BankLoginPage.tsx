@@ -3,10 +3,11 @@ import { useMutation } from "@apollo/client";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import { Button, Input, Panel } from "rsuite";
 import { USER_TOKEN_PERSIST } from "../../config/constants";
 import { ILoginInput, ILoginResponse } from "../../gql/Auth/mutations";
+
 const BankLoginPage = () => {
   const { control, handleSubmit } = useForm<ILoginInput>();
   const router = useRouter();
@@ -17,7 +18,6 @@ const BankLoginPage = () => {
 
   const onLogin = async (input: ILoginInput) => {
     try {
-      toast.loading("Realizando login...");
       await login({
         variables: {
           loginInput: {
@@ -26,11 +26,29 @@ const BankLoginPage = () => {
           },
         },
       });
-      toast.success("Login realizado con exito");
+      toast("Login realizado con exit!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
       router.replace("/app/home");
     } catch (error: any) {
       console.log(error);
-      toast.error("Error al realizar el login");
+      toast("Error al iniciar sesion!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
   };
 

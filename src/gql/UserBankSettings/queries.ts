@@ -4,7 +4,26 @@ export const GET_USER_BANK_SETTINGS = gql`
     userBankSetting {
       bankSetting {
         id
-        bankName
+        contacts {
+          user {
+            name
+            email
+          }
+          bankAccount {
+            id
+            updatedAt
+            createdAt
+            balance
+            accountNumber
+            typeAccount
+            ... on CheckingAccount {
+              transferenceCost
+            }
+            ... on SavingsAccount {
+              interestRate
+            }
+          }
+        }
       }
       user {
         id
@@ -12,22 +31,17 @@ export const GET_USER_BANK_SETTINGS = gql`
         email
       }
       bankAccount {
+        id
+        updatedAt
+        createdAt
+        balance
+        accountNumber
+        bankName
+        typeAccount
         ... on CheckingAccount {
-          id
-          updatedAt
-          createdAt
-          balance
-          accountNumber
-          typeAccount
           transferenceCost
         }
         ... on SavingsAccount {
-          id
-          updatedAt
-          createdAt
-          balance
-          accountNumber
-          typeAccount
           interestRate
         }
       }
