@@ -1,8 +1,8 @@
 import { gqlBankAccount, gqlUserBankSettings } from "@/gql";
 import { useMutation } from "@apollo/client";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import { Button, Drawer, Input, SelectPicker } from "rsuite";
+import { Button, Drawer, Input, Message, SelectPicker } from "rsuite";
 import { useUser } from "../../../../context/user/user.context";
 import { IDepositToAccountInput } from "../../../../gql/BankAccount/mutations";
 import {
@@ -16,7 +16,10 @@ interface Props {
 }
 
 const Deposit = ({ drawer, setDrawer }: Props) => {
-  const { control, handleSubmit } = useForm<IDepositToAccount>();
+  const { control, handleSubmit, formState } = useForm<IDepositToAccount>();
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const { errors } = formState;
   const { userBankAccount } = useUser();
   const BANK_ACCOUNTS_DATA = Object.keys(EAccountType)?.map((account) => ({
     label: account,
@@ -29,24 +32,15 @@ const Deposit = ({ drawer, setDrawer }: Props) => {
   >(gqlBankAccount.mutations.DEPOSTI_TO_ACCOUNT, {
     refetchQueries: [gqlUserBankSettings.queries.GET_USER_BANK_SETTINGS],
     onCompleted: (data) => {
-      console.log(data);
+      setErrorMessage("");
+      setSuccessMessage("Deposito realizado con exito");
     },
     onError: (error) => {
-      toast(error.message, {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      setErrorMessage(error.message);
     },
   });
-
   const onDeposit = async (input: IDepositToAccount) => {
-    depositTo({
+    await depositTo({
       variables: {
         depositBalanceInput: {
           amount: +input.amount,
@@ -58,9 +52,17 @@ const Deposit = ({ drawer, setDrawer }: Props) => {
     });
   };
 
+  const genericMessage = (type: any, message: string) => (
+    <Message showIcon type={type}>
+      {message}
+    </Message>
+  );
+
   return (
     <Drawer open={drawer} onClose={() => setDrawer(false)}>
       <Drawer.Body>
+        {errorMessage && genericMessage("error", errorMessage)}
+        {successMessage && genericMessage("success", successMessage)}
         <form
           className="flex flex-col mt-10 space-y-6"
           onSubmit={handleSubmit(onDeposit)}
@@ -78,21 +80,31 @@ const Deposit = ({ drawer, setDrawer }: Props) => {
                   onChange={(v) => field.onChange(v)}
                   value={field.value}
                   data={BANK_ACCOUNTS_DATA || []}
-                  placeholder="Monto"
+                  placeholder="Seleccionar"
                 />
               )}
             />
+            {errors && errors.accountTypeTo && (
+              <span className="text-sm text-red-500">
+                Este campo es requerido
+              </span>
+            )}
           </div>
           <div className="">
             <label className="text-md">Monto</label>
             <Controller
               name="amount"
-              rules={{ required: true }}
+              rules={{ required: true, min: 1 }}
               control={control}
               render={({ field }) => (
                 <Input {...field} placeholder="Monto" className="p-3 " />
               )}
             />
+            {errors && errors?.amount && (
+              <span className="text-sm text-red-500">
+                Este campo es requerido
+              </span>
+            )}
           </div>
           <div className="">
             <label className="text-md">Password</label>
@@ -109,6 +121,11 @@ const Deposit = ({ drawer, setDrawer }: Props) => {
                 />
               )}
             />
+            {errors && errors.password && (
+              <span className="text-sm text-red-500">
+                Este campo es requerido
+              </span>
+            )}
           </div>
           <Button
             type="submit"
