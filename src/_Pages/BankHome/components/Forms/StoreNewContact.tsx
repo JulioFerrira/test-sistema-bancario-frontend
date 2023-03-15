@@ -1,9 +1,9 @@
-import { gqlBankAccount, gqlUserBankSettings } from "@/gql";
+import { gqlUserBankSettings } from "@/gql";
 import { useMutation } from "@apollo/client";
 import { Dispatch, SetStateAction } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Button, Drawer, Input, SelectPicker } from "rsuite";
-import { ITransferToAccountInput } from "../../../../gql/BankAccount/mutations";
+import { IAddContactInput } from "../../../../gql/UserBankSettings/mutations";
 import {
   EAccountType,
   ITransferToAccount,
@@ -22,26 +22,25 @@ const StoreNewContact = ({ drawer, setDrawer }: Props) => {
     value: account,
   }));
 
-  const [transferTo] = useMutation<
-    any,
-    { transferBalanceInput: ITransferToAccountInput }
-  >(gqlBankAccount.mutations.TRANSFER_TO_ACCOUNT, {
-    refetchQueries: [gqlUserBankSettings.queries.GET_USER_BANK_SETTINGS],
-    onCompleted: (data) => {
-      console.log(data);
-    },
-    onError: (error) => {},
-  });
+  const [transferTo] = useMutation<any, { addContactInput: IAddContactInput }>(
+    gqlUserBankSettings.mutations.ADD_CONTACT,
+    {
+      refetchQueries: [gqlUserBankSettings.queries.GET_USER_BANK_SETTINGS],
+      onCompleted: (data) => {
+        console.log(data);
+      },
+      onError: (error) => {},
+    }
+  );
 
   const onTransfer = async (input: ITransferToAccount) => {
     transferTo({
       variables: {
-        transferBalanceInput: {
-          accountNumberTo: input.accountNumberTo,
-          bankNameTo: input.bankNameTo,
-          emailTo: input.emailTo,
-          amount: +input.amount,
-          accountTypeTo: input.accountTypeTo,
+        addContactInput: {
+          accountNumber: input.accountNumberTo,
+          bankName: input.bankNameTo,
+          email: input.emailTo,
+          accountType: input.accountTypeTo,
           transferencePassword: input.password,
         },
       },
