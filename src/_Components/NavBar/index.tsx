@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { Dispatch, ReactElement, SetStateAction, useState } from "react";
 import { Nav, Navbar, NavbarProps } from "rsuite";
 
@@ -29,6 +30,12 @@ const NavBar = ({
   const [openDrawerTranfer, setDrawerTranfer] = useState(false);
   const [openDrawerDeposit, setDrawerDeposit] = useState(false);
   const [openDrawerAddContact, setDrawerAddContact] = useState(false);
+  const router = useRouter();
+
+  const onCloseSession = () => {
+    localStorage.clear();
+    router.replace("/");
+  };
 
   const onOpenTransferDrawer = () => {
     setDrawerTranfer(true);
@@ -55,6 +62,9 @@ const NavBar = ({
           </Nav.Item>
           <Nav.Item eventKey="3" onClick={() => onOpenTransferDrawer()}>
             Transferir
+          </Nav.Item>
+          <Nav.Item eventKey="4" onClick={() => onCloseSession()}>
+            Cerrar session
           </Nav.Item>
         </Nav>
       </Navbar>
